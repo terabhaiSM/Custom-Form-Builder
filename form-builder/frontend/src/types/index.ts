@@ -7,7 +7,7 @@ export type Option = {
   // Define the structure for a field
   export type Field = {
     id: string;
-    type: "dropdown" | "checkbox" | "text" | "number"; // Add text and number types
+    type: "dropdown" | "checkbox" | "text" | "number" | "radio"; // Add text and number types
     label: string;
     options?: Option[]; // options for dropdown and checkbox
     value?: string | number; // For text and number fields, store the value
