@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import DropdownCard from "../ui/DropdownCard";
@@ -10,7 +11,6 @@ import { Field } from "../types"; // Import the Field type
 
 const ItemType = "FIELD"; // Define a constant for item type
 
-// FieldCard Component to display the specific field type
 const FieldCard: React.FC<{
   field: Field;
   index: number;
@@ -60,7 +60,9 @@ const FieldCard: React.FC<{
   return (
     <div
       ref={ref}
-      className={`p-4 rounded shadow bg-white ${isDragging ? "opacity-50" : ""}`}
+      className={`p-4 rounded shadow bg-white ${
+        isDragging ? "opacity-50" : ""
+      }`}
       style={{ marginBottom: "8px", cursor: "move" }}
     >
       {/* Render the respective card based on field type */}
@@ -113,6 +115,7 @@ const FormBuilderPage: React.FC = () => {
     { id: "number", type: "number", label: "Number Input", value: "" },
     { id: "radio", type: "radio", label: "Radio Button", options: [{ label: "Option 1", checked: false }, { label: "Option 2", checked: false }] },
   ]); // Available fields in the left panel
+  const navigate = useNavigate();
 
   // Handling adding new fields
   const addField = (type: "dropdown" | "checkbox" | "text" | "number" | "radio") => {
@@ -213,58 +216,80 @@ const FormBuilderPage: React.FC = () => {
       fields: prevForm.fields.filter((field) => field.id !== id),
     }));
   };
+  // Handle form creation and redirect
+  const createForm = () => {
+    const newFormId = Date.now().toString();
+    // Store the form in localStorage
+    const newForm = { ...form, id: newFormId };
+    localStorage.setItem(newFormId, JSON.stringify(newForm)); // Save form to localStorage
+    // Redirect to the form page
+    navigate(`/form/${newFormId}`);
+  };
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div className="min-h-screen bg-gray-100 p-8">
-        <div className="max-w-6xl mx-auto bg-white shadow rounded-lg p-6">
-          <div className="flex flex-col space-y-6">
-            {/* Form Title and Description */}
-            <div className="mb-4">
-              <div className="mb-2">
-                <label htmlFor="formTitle" className="text-lg font-semibold">
-                  Form Title:
-                </label>
-                <input
-                  id="formTitle"
-                  type="text"
-                  value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none"
-                  placeholder="Enter form title"
-                />
-              </div>
-              <div className="mb-2">
-                <label htmlFor="formDescription" className="text-lg font-semibold">
-                  Form Description:
-                </label>
-                <input
-                  id="formDescription"
-                  type="text"
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none"
-                  placeholder="Enter form description"
-                />
+    <DndProvider backend={HTML5Backend}>    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-6xl mx-auto bg-white shadow rounded-lg p-6">
+        <div className="flex flex-col space-y-6">
+          {/* Form Title and Description */}
+          <div className="mb-4">
+            <div className="mb-2">
+              <label htmlFor="formTitle" className="text-lg font-semibold">
+                Form Title:
+              </label>
+              <input
+                id="formTitle"
+                type="text"
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none"
+                placeholder="Enter form title"
+              />
+            </div>
+            <div className="mb-2">
+              <label
+                htmlFor="formDescription"
+                className="text-lg font-semibold"
+              >
+                Form Description:
+              </label>
+              <input
+                id="formDescription"
+                type="text"
+                value={form.description}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
+                className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none"
+                placeholder="Enter form description"
+              />
+            </div>
+          </div>
+
+          {/* Left Panel for available field types */}
+          <div className="flex space-x-6">
+            <div className="w-1/4 bg-gray-50 p-4 rounded shadow">
+              <h3 className="text-lg font-semibold mb-4">Available Fields</h3>
+              <div className="space-y-2">
+                {availableFields.map((field) => (
+                  <div
+                    key={field.id}
+                    className="field-item p-3 cursor-pointer bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
+                    onClick={() =>
+                      addField(
+                        field.type as
+                          | "dropdown"
+                          | "checkbox"
+                          | "text"
+                          | "number"
+                          | "radio"
+                      )
+                    }
+                  >
+                    {field.label}
+                  </div>
+                ))}
               </div>
             </div>
-
-            {/* Left Panel for available field types */}
-            <div className="flex space-x-6">
-              <div className="w-1/4 bg-gray-50 p-4 rounded shadow">
-                <h3 className="text-lg font-semibold mb-4">Available Fields</h3>
-                <div className="space-y-2">
-                  {availableFields.map((field) => (
-                    <div
-                      key={field.id}
-                      className="field-item p-3 cursor-pointer bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
-                      onClick={() => addField(field.type as "dropdown" | "checkbox" | "text" | "number" | "radio")}
-                    >
-                      {field.label}
-                    </div>
-                  ))}
-                </div>
-              </div>
 
               {/* Right Panel for the form fields */}
               <div className="w-3/4 bg-gray-50 p-4 rounded shadow">
@@ -285,6 +310,14 @@ const FormBuilderPage: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Create Form Button */}
+          <button
+            onClick={createForm}
+            className="w-full bg-blue-500 text-white py-2 rounded shadow hover:bg-blue-600 transition duration-200"
+          >
+            Create Form
+          </button>
         </div>
       </div>
     </DndProvider>
