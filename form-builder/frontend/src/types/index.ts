@@ -1,47 +1,14 @@
-export type Field =
-  | TextInputField
-  | NumberInputField
-  | DatePickerField
-  | CheckboxField
-  | DropdownField
-  | RadioButtonField;
-
-export interface BaseField {
-  id: string;           // Unique identifier for each field
-  label: string;        // Field label
-  placeholder?: string; // Optional placeholder text
-  required: boolean;    // Whether the field is required or not
-  defaultValue?: string; // Optional default value
-  type: string;         // Type of the field (Text, Number, etc.)
-}
-
-export interface TextInputField extends BaseField {
-  type: 'text';
-  maxLength?: number;  // Optional: max length for the text input
-}
-
-export interface NumberInputField extends BaseField {
-  type: 'number';
-  min?: number;        // Optional: minimum value
-  max?: number;        // Optional: maximum value
-}
-
-export interface DatePickerField extends BaseField {
-  type: 'date';
-}
-
-export interface CheckboxField extends BaseField {
-  type: 'checkbox';
-  options: string[];    // Options for checkboxes
-}
-
-export interface DropdownField extends BaseField {
-  type: 'dropdown';
-  options: string[];    // Options for dropdown
-}
-
-export interface RadioButtonField extends BaseField {
-  type: 'radio';
-  options: string[];    // Options for radio buttons
-}
-
+// Define the basic structure of options for both dropdown and checkbox fields
+export type Option = {
+    label: string;
+    checked?: boolean; // Only used for checkboxes
+  };
+  
+  // Define the structure for a field
+  export type Field = {
+    id: string;
+    type: "dropdown" | "checkbox" | "text" | "number"; // Add text and number types
+    label: string;
+    options?: Option[]; // options for dropdown and checkbox
+    value?: string | number; // For text and number fields, store the value
+  };

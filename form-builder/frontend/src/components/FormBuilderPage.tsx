@@ -2,18 +2,13 @@ import React, { useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import DropdownCard from "../ui/DropdownCard";
-
-// Define the field type for TypeScript
-type Field = {
-  id: string;
-  type: "dropdown";
-  label: string;
-  options: string[];
-};
+import CheckboxCard from "../ui/CheckboxCard";
+import TextInputCard from "../ui/TextInputCard";
+import NumberInputCard from "../ui/NumberInputCard";
+import { Field } from "../types"; // Import the Field type
 
 const ItemType = "FIELD"; // Define a constant for item type
 
-// FieldCard component for rendering individual fields
 const FieldCard: React.FC<{
   field: Field;
   index: number;
@@ -22,7 +17,17 @@ const FieldCard: React.FC<{
   removeField: (id: string) => void;
   handleAddOption: (fieldId: string) => void;
   handleOptionChange: (fieldId: string, index: number, value: string) => void;
-}> = ({ field, index, moveField, updateField, removeField, handleAddOption, handleOptionChange }) => {
+  handleOptionToggle: (fieldId: string, index: number) => void;
+}> = ({
+  field,
+  index,
+  moveField,
+  updateField,
+  removeField,
+  handleAddOption,
+  handleOptionChange,
+  handleOptionToggle,
+}) => {
   const ref = React.useRef<HTMLDivElement>(null);
 
   const [, drop] = useDrop({
@@ -56,20 +61,29 @@ const FieldCard: React.FC<{
       className={`p-4 rounded shadow bg-white ${isDragging ? "opacity-50" : ""}`}
       style={{ marginBottom: "8px", cursor: "move" }}
     >
-      {/* For dropdown, render DropdownCard */}
+      {/* Render the respective card based on field type */}
       {field.type === "dropdown" ? (
         <DropdownCard
           field={field}
           updateField={updateField}
+          removeField={removeField}
           handleAddOption={handleAddOption}
           handleOptionChange={handleOptionChange}
         />
-      ) : (
-        <div>
-          <p>{field.label}</p>
-          {/* Other input types handling */}
-        </div>
-      )}
+      ) : field.type === "checkbox" ? (
+        <CheckboxCard
+          field={field}
+          updateField={updateField}
+          removeField={removeField}
+          handleAddOption={handleAddOption}
+          handleOptionChange={handleOptionChange}
+          handleOptionToggle={handleOptionToggle}
+        />
+      ) : field.type === "text" ? (
+        <TextInputCard field={field} updateField={updateField} removeField={removeField} />
+      ) : field.type === "number" ? (
+        <NumberInputCard field={field} updateField={updateField} removeField={removeField} />
+      ) : null}
     </div>
   );
 };
@@ -78,20 +92,26 @@ const FormBuilderPage: React.FC = () => {
   const [fields, setFields] = useState<Field[]>([]);
   const [availableFields] = useState([
     { id: "dropdown", type: "dropdown", label: "Dropdown", options: [] },
+    { id: "checkbox", type: "checkbox", label: "Checkbox", options: [{ label: "Option 1", checked: false }, { label: "Option 2", checked: false }] },
+    { id: "text", type: "text", label: "Text Input", value: "" },
+    { id: "number", type: "number", label: "Number Input", value: "" },
   ]); // Available fields in the left panel
 
-  // Function to add a new field to the form (dragged from the left panel)
-  const addField = (type: "dropdown") => {
+  const addField = (type: "dropdown" | "checkbox" | "text" | "number") => {
     const newField: Field = {
       id: Date.now().toString(),
       type,
       label: `${type.charAt(0).toUpperCase() + type.slice(1)} Field`,
-      options: type === "dropdown" ? ["Option 1", "Option 2"] : [],
+      options: type === "dropdown" 
+        ? [{ label: "Option 1", checked: false }]
+        : type === "checkbox"
+        ? [{ label: "Option 1", checked: false }, { label: "Option 2", checked: false }]
+        : undefined,
+      value: type === "text" || type === "number" ? "" : undefined,
     };
     setFields([...fields, newField]);
   };
 
-  // Function to move the field in the right panel (reorder fields)
   const moveField = (dragIndex: number, hoverIndex: number) => {
     const reorderedFields = [...fields];
     const [movedField] = reorderedFields.splice(dragIndex, 1);
@@ -99,32 +119,31 @@ const FormBuilderPage: React.FC = () => {
     setFields(reorderedFields);
   };
 
-  // Function to update field properties (label, options, etc.)
   const updateField = (id: string, updatedField: Partial<Field>) => {
     setFields(fields.map((field) => (field.id === id ? { ...field, ...updatedField } : field)));
   };
 
-  // Add new option to the dropdown field
   const handleAddOption = (fieldId: string) => {
     const updatedFields = fields.map((field) => {
       if (field.id === fieldId && "options" in field) {
-        return { ...field, options: [...field.options, "New Option"] };
+        return {
+          ...field,
+          options: [
+            ...field.options,
+            { label: `Option ${field.options.length + 1}`, checked: false },
+          ],
+        };
       }
       return field;
     });
     setFields(updatedFields);
   };
 
-  // Handle option change (value change inside dropdown options)
-  const handleOptionChange = (
-    fieldId: string,
-    index: number,
-    value: string
-  ) => {
+  const handleOptionChange = (fieldId: string, index: number, value: string) => {
     const updatedFields = fields.map((field) => {
       if (field.id === fieldId && "options" in field) {
         const updatedOptions = [...field.options];
-        updatedOptions[index] = value;
+        updatedOptions[index].label = value;
         return { ...field, options: updatedOptions };
       }
       return field;
@@ -132,7 +151,18 @@ const FormBuilderPage: React.FC = () => {
     setFields(updatedFields);
   };
 
-  // Remove field
+  const handleOptionToggle = (fieldId: string, index: number) => {
+    const updatedFields = fields.map((field) => {
+      if (field.id === fieldId && "options" in field) {
+        const updatedOptions = [...field.options];
+        updatedOptions[index].checked = !updatedOptions[index].checked;
+        return { ...field, options: updatedOptions };
+      }
+      return field;
+    });
+    setFields(updatedFields);
+  };
+
   const removeField = (id: string) => {
     setFields(fields.filter((field) => field.id !== id));
   };
@@ -144,16 +174,18 @@ const FormBuilderPage: React.FC = () => {
           <div className="flex space-x-6">
             {/* Left Panel for available field types */}
             <div className="w-1/4 bg-gray-50 p-4 rounded shadow">
-              <h3>Available Fields</h3>
-              {availableFields.map((field) => (
-                <div
-                  key={field.id}
-                  className="field-item p-2 cursor-pointer bg-blue-200 rounded"
-                  onClick={() => addField(field.type as "dropdown")}
-                >
-                  {field.label}
-                </div>
-              ))}
+              <h3 className="text-lg font-semibold mb-4">Available Fields</h3>
+              <div className="space-y-2">
+                {availableFields.map((field) => (
+                  <div
+                    key={field.id}
+                    className="field-item p-3 cursor-pointer bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
+                    onClick={() => addField(field.type as "dropdown" | "checkbox" | "text" | "number")}
+                  >
+                    {field.label}
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Right Panel for the form fields */}
@@ -169,6 +201,7 @@ const FormBuilderPage: React.FC = () => {
                   removeField={removeField}
                   handleAddOption={handleAddOption}
                   handleOptionChange={handleOptionChange}
+                  handleOptionToggle={handleOptionToggle}
                 />
               ))}
             </div>

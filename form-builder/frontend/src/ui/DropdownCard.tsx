@@ -1,22 +1,20 @@
 import React from "react";
-import { Field } from "../types"; // Import the Field type
+import { Field } from "../types";
 
-type CheckboxCardProps = {
+type DropdownCardProps = {
   field: Field;
   updateField: (id: string, updatedField: Partial<Field>) => void;
-  removeField: (id: string) => void;
+    removeField: (id: string) => void
   handleAddOption: (fieldId: string) => void;
   handleOptionChange: (fieldId: string, index: number, value: string) => void;
-  handleOptionToggle: (fieldId: string, index: number) => void;
 };
 
-const CheckboxCard: React.FC<CheckboxCardProps> = ({
+const DropdownCard: React.FC<DropdownCardProps> = ({
   field,
   updateField,
-    removeField,
+  removeField,
   handleAddOption,
   handleOptionChange,
-  handleOptionToggle,
 }) => {
   return (
     <div className="field-card p-4 rounded shadow bg-white">
@@ -37,14 +35,8 @@ const CheckboxCard: React.FC<CheckboxCardProps> = ({
         {field.options.map((option, idx) => (
           <div key={idx} className="flex items-center space-x-2">
             <input
-              type="checkbox"
-              checked={option.checked}
-              onChange={() => handleOptionToggle(field.id, idx)}
-              className="mr-2"
-            />
-            <input
               type="text"
-              value={option.label}
+              value={option.label} // Use `option.label` to display the correct value
               onChange={(e) => handleOptionChange(field.id, idx, e.target.value)}
               className="w-full border-b-2 border-gray-300 focus:border-blue-500 outline-none"
             />
@@ -70,4 +62,4 @@ const CheckboxCard: React.FC<CheckboxCardProps> = ({
   );
 };
 
-export default CheckboxCard;
+export default DropdownCard;
