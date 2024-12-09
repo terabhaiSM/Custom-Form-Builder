@@ -11,16 +11,20 @@ const TextInputCard: React.FC<TextInputCardProps> = ({ field, updateField, remov
   return (
     <div className="field-card p-4 rounded shadow bg-white">
       <div className="flex flex-col space-y-2 mb-2">
+        {/* Input for the Label */}
         <input
           type="text"
-          value={field.value}
-          onChange={(e) => updateField(field.id, { value: e.target.value })}
+          id="label"
+          value={field.label || ""}
+          onChange={(e) => updateField(field.id, { label: e.target.value })}
           className="w-full border-b-2 border-gray-300 focus:border-blue-500 outline-none"
-          placeholder="Text Input"
+          placeholder="Label"
         />
+        {/* Input for the Value */}
         <input
           type="text"
-          value={field.value}
+          id="value"
+          value={field.value || ""}
           onChange={(e) => updateField(field.id, { value: e.target.value })}
           className="w-full border-b-2 border-gray-300 focus:border-blue-500 outline-none"
           placeholder="Enter text"
@@ -29,7 +33,9 @@ const TextInputCard: React.FC<TextInputCardProps> = ({ field, updateField, remov
       <button
         onClick={() => removeField(field.id)}
         className="text-red-500 hover:underline"
-      > Remove </button>
+      >
+        Remove
+      </button>
     </div>
   );
 };

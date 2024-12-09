@@ -8,6 +8,7 @@ import TextInputCard from "../ui/TextInputCard";
 import NumberInputCard from "../ui/NumberInputCard";
 import RadioButtonCard from "../ui/RadioButtonCard";
 import { Field } from "../types"; // Import the Field type
+import axios from "axios"; // Import axios
 
 const ItemType = "FIELD"; // Define a constant for item type
 
@@ -217,13 +218,34 @@ const FormBuilderPage: React.FC = () => {
     }));
   };
   // Handle form creation and redirect
-  const createForm = () => {
-    const newFormId = Date.now().toString();
-    // Store the form in localStorage
-    const newForm = { ...form, id: newFormId };
-    localStorage.setItem(newFormId, JSON.stringify(newForm)); // Save form to localStorage
-    // Redirect to the form page
-    navigate(`/form/${newFormId}`);
+  // const createForm = () => {
+  //   const newFormId = Date.now().toString();
+  //   // Store the form in localStorage
+  //   const newForm = { ...form, id: newFormId };
+  //   console.log(newForm);
+  //   localStorage.setItem(newFormId, JSON.stringify(newForm)); // Save form to localStorage
+  //   // Redirect to the form page
+  //   navigate(`/form/${newFormId}`);
+  // };
+
+  const createForm = async () => {
+    try {
+      // Send the form data to the backend
+      const response = await axios.post("http://localhost:5001/api/forms", form);
+  
+      // Get the new form UUID from the response
+      const newFormId = response.data.id;
+      const formUuid = response.data.uuid;
+  
+      // Show the shareable link
+      alert(`Form created! Shareable link: http://localhost:3000/share/${formUuid}`);
+  
+      // Navigate to the form page using the new form ID
+      navigate(`/form/${newFormId}`);
+    } catch (error) {
+      console.error("Error creating form:", error);
+      alert("Failed to create form. Please try again.");
+    }
   };
 
   return (
