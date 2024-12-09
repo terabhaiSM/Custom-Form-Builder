@@ -8,13 +8,22 @@ datasource db {
 }
 
 model Form {
-  id          String    @id @default(cuid()) // Unique form ID
-  uuid        String    @unique @default(uuid()) // Required UUID with default
-  title       String    // Form title
-  description String    // Form description
-  fields      Field[]   // Relation to form fields
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id          String        @id @default(cuid()) // Unique form ID
+  uuid        String        @unique @default(uuid()) // Unique shareable link identifier
+  title       String        // Form title
+  description String        // Form description
+  fields      Field[]       // Relation to form fields
+  submissions Submission[]  // Relation to form submissions
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Submission {
+  id        String   @id @default(cuid()) // Unique submission ID
+  formId    String   // Foreign key to Form
+  form      Form     @relation(fields: [formId], references: [id])
+  responses Json     // Store user responses as JSON
+  createdAt DateTime @default(now())
 }
 
 model Field {
