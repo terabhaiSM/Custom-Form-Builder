@@ -132,6 +132,7 @@ app.get("/api/forms/:id/submissions", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch submissions" });
   }
 });
+
 // GET /api/forms - Fetch all forms
 app.get("/api/forms", async (req, res) => {
   try {
