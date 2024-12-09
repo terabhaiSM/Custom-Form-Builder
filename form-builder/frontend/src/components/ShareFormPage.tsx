@@ -3,28 +3,46 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 
 const ShareFormPage: React.FC = () => {
-  const { uuid } = useParams<{ uuid: string }>(); // Access the form UUID from the URL
-  const [form, setForm] = useState<any>(null); // Form state
-  const [loading, setLoading] = useState<boolean>(true); // Loading state
-  const [error, setError] = useState<string | null>(null); // Error state
+  const { uuid } = useParams<{ uuid: string }>();
+  const [form, setForm] = useState<any>(null);
+  const [responses, setResponses] = useState<any>({});
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch form data by UUID from the backend
     const fetchForm = async () => {
       try {
-        setLoading(true); // Start loading
-        const response = await axios.get(`http://localhost:5001/api/forms/share/${uuid}`); // API call
-        setForm(response.data); // Set the form data
+        setLoading(true);
+        const response = await axios.get(
+          `http://localhost:5001/api/forms/share/${uuid}`
+        );
+        setForm(response.data);
       } catch (err) {
-        console.error("Error fetching form by UUID:", err);
         setError("Failed to load form. Please try again.");
       } finally {
-        setLoading(false); // Stop loading
+        setLoading(false);
       }
     };
 
     fetchForm();
   }, [uuid]);
+
+  const handleInputChange = (fieldId: string, value: any) => {
+    setResponses({ ...responses, [fieldId]: value });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      await axios.post(
+        `http://localhost:5001/api/forms/${form.id}/submissions`,
+        { responses }
+      );
+      alert("Form submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Failed to submit form. Please try again.");
+    }
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -35,27 +53,29 @@ const ShareFormPage: React.FC = () => {
       <p className="text-lg mb-6">{form.description}</p>
 
       <div className="space-y-4">
-        {form.fields.map((field: any, index: number) => (
+        {form.fields.map((field: any) => (
           <div key={field.id} className="mb-4">
             <label className="block mb-2">{field.label}</label>
 
-            {/* Render different input types based on field type */}
             {field.type === "text" && (
               <input
                 type="text"
+                onChange={(e) => handleInputChange(field.id, e.target.value)}
                 className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none"
-                placeholder={field.label}
               />
             )}
             {field.type === "number" && (
               <input
                 type="number"
+                onChange={(e) => handleInputChange(field.id, e.target.value)}
                 className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none"
-                placeholder={field.label}
               />
             )}
             {field.type === "dropdown" && (
-              <select className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none">
+              <select
+                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none"
+              >
                 {field.options.map((option: any, idx: number) => (
                   <option key={idx} value={option.label}>
                     {option.label}
@@ -66,20 +86,40 @@ const ShareFormPage: React.FC = () => {
             {field.type === "checkbox" &&
               field.options.map((option: any, idx: number) => (
                 <div key={idx} className="flex items-center mb-2">
-                  <input type="checkbox" className="mr-2" />
+                  <input
+                    type="checkbox"
+                    onChange={(e) =>
+                      handleInputChange(field.id, {
+                        ...responses[field.id],
+                        [option.label]: e.target.checked,
+                      })
+                    }
+                    className="mr-2"
+                  />
                   <label>{option.label}</label>
                 </div>
               ))}
             {field.type === "radio" &&
               field.options.map((option: any, idx: number) => (
                 <div key={idx} className="flex items-center mb-2">
-                  <input type="radio" name={`radio-${field.id}`} className="mr-2" />
+                  <input
+                    type="radio"
+                    name={field.id}
+                    onChange={() => handleInputChange(field.id, option.label)}
+                    className="mr-2"
+                  />
                   <label>{option.label}</label>
                 </div>
               ))}
           </div>
         ))}
       </div>
+      <button
+        onClick={handleSubmit}
+        className="mt-6 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200"
+      >
+        Submit
+      </button>
     </div>
   );
 };
