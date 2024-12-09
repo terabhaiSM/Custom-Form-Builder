@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Add your Postgres URL in .env file
+}
+
+model Form {
+  id          String    @id @default(cuid()) // Unique form ID
+  uuid        String    @unique @default(uuid()) // Required UUID with default
+  title       String    // Form title
+  description String    // Form description
+  fields      Field[]   // Relation to form fields
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Field {
+  id        String   @id @default(cuid()) // Unique field ID
+  type      String   // Field type: 'text', 'number', 'dropdown', etc.
+  label     String   // Field label
+  value     String?  // Optional value for text/number inputs
+  options   Json?    // JSON array for dropdown, checkbox, and radio options
+  formId    String   // Foreign key to Form
+  form      Form     @relation(fields: [formId], references: [id])
+}
