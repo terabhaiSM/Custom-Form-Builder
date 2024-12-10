@@ -16,7 +16,7 @@ const FormPage: React.FC = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `http://localhost:5001/api/forms/${id}`
+          `${process.env.REACT_APP_API_URL}/forms/${id}`
         );
         setForm(response.data);
       } catch (err) {
@@ -37,7 +37,7 @@ const FormPage: React.FC = () => {
   const handleSubmit = async () => {
     try {
       await axios.post(
-        `http://localhost:5001/api/forms/${form.id}/submissions`,
+        `${process.env.REACT_APP_API_URL}/forms/${form.id}/submissions`,
         { responses }
       );
       alert("Form submitted successfully!");

@@ -40,7 +40,7 @@ const FormSubmissionsPage: React.FC = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `http://localhost:5001/api/forms/${id}/submissions`,
+          `${process.env.REACT_APP_API_URL}/forms/${id}/submissions`,
           { validateStatus: (status) => status < 500 }
         );
         setFormData(response.data);

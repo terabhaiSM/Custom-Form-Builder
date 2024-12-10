@@ -132,7 +132,7 @@ const FormBuilderPage: React.FC = () => {
       }
 
       try {
-        const response = await axios.get(`http://localhost:5001/api/forms/${id}`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/forms/${id}`);
         const formData = response.data;
         setForm({
           title: formData.title,
@@ -158,12 +158,12 @@ const FormBuilderPage: React.FC = () => {
     try {
       if (id) {
         // Update existing form
-        await axios.put(`http://localhost:5001/api/forms/${id}`, form);
+        await axios.put(`${process.env.REACT_APP_API_URL}/forms/${id}`, form);
         alert("Form updated successfully!");
         navigate(`/form/${id}`);
       } else {
         // Create a new form
-        const response = await axios.post("http://localhost:5001/api/forms", form);
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}/forms`, form);
         const newFormId = response.data.id;
         alert(`Form created successfully!`);
         navigate(`/form/${newFormId}`);
@@ -278,14 +278,11 @@ const FormBuilderPage: React.FC = () => {
   const createForm = async () => {
     try {
       // Send the form data to the backend
-      const response = await axios.post("http://localhost:5001/api/forms", form);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/forms`, form);
   
       // Get the new form UUID from the response
       const newFormId = response.data.id;
       const formUuid = response.data.uuid;
-  
-      // Show the shareable link
-      alert(`Form created! Shareable link: http://localhost:3000/share/${formUuid}`);
   
       // Navigate to the form page using the new form ID
       navigate(`/form/${newFormId}`);

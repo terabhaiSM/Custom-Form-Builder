@@ -15,7 +15,7 @@ const AllFormsPage: React.FC = () => {
         const fetchForms = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get("http://localhost:5001/api/forms", {
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/forms`, {
                     validateStatus: (status) => status < 500,
                 });
                 console.log(response.data);
@@ -51,7 +51,7 @@ const AllFormsPage: React.FC = () => {
     const handleDeleteForm = async (id: string) => {
         if (window.confirm("Are you sure you want to delete this form?")) {
             try {
-                await axios.delete(`http://localhost:5001/api/forms/${id}`);
+                await axios.delete(`${process.env.REACT_APP_API_URL}/forms/${id}`);
                 setForms(forms.filter((form) => form.id !== id));
                 alert("Form deleted successfully!");
             } catch (err) {
