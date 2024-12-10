@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { HiOutlineClipboardCopy, HiPencilAlt, HiTrash } from "react-icons/hi"; // Import Trash Icon from React Icons
+import Loader from "./Loader/Loader";
 
 const AllFormsPage: React.FC = () => {
     const [forms, setForms] = useState<any[]>([]); // State to hold all forms
@@ -34,7 +35,7 @@ const AllFormsPage: React.FC = () => {
         fetchForms();
     }, []);
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <Loader />; // Show loader while fetching forms
     if (error) return <div>{error}</div>;
 
     // Function to copy the shareable link to clipboard

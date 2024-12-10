@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import Loader from "./Loader/Loader";
 
 const ShareFormPage: React.FC = () => {
   const { uuid } = useParams<{ uuid: string }>();
@@ -38,13 +39,14 @@ const ShareFormPage: React.FC = () => {
         { responses }
       );
       alert("Form submitted successfully!");
+      window.location.reload();
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("Failed to submit form. Please try again.");
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loader />;
   if (error) return <div>{error}</div>;
 
   return (
@@ -76,6 +78,9 @@ const ShareFormPage: React.FC = () => {
                 onChange={(e) => handleInputChange(field.id, e.target.value)}
                 className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none"
               >
+                <option value="" disabled selected>
+                  Select your option
+                </option>
                 {field.options.map((option: any, idx: number) => (
                   <option key={idx} value={option.label}>
                     {option.label}
@@ -111,6 +116,13 @@ const ShareFormPage: React.FC = () => {
                   <label>{option.label}</label>
                 </div>
               ))}
+            {field.type === "date" && (
+              <input
+                type="date"
+                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none"
+              />
+            )}
           </div>
         ))}
       </div>

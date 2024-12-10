@@ -14,7 +14,7 @@ return (
             <input
                 type="text"
                 value={field.label || ""}
-                onChange={(e) => updateField(field.id, { value: e.target.value })}
+                onChange={(e) => updateField(field.id, { label: e.target.value })}
                 className="w-full border-b-2 border-gray-300 focus:border-blue-500 outline-none"
                 placeholder="Number Input"
             />

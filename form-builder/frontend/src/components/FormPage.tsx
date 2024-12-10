@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Loader from "./Loader/Loader";
 
 const FormPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,7 +15,9 @@ const FormPage: React.FC = () => {
     const fetchForm = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:5001/api/forms/${id}`);
+        const response = await axios.get(
+          `http://localhost:5001/api/forms/${id}`
+        );
         setForm(response.data);
       } catch (err) {
         console.error("Error fetching form:", err);
@@ -45,7 +48,7 @@ const FormPage: React.FC = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loader />;
   if (error) return <div>{error}</div>;
 
   return (
@@ -77,6 +80,9 @@ const FormPage: React.FC = () => {
                 onChange={(e) => handleInputChange(field.id, e.target.value)}
                 className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none"
               >
+                <option value="" disabled selected>
+                  Select your option
+                </option>
                 {field.options.map((option: any, idx: number) => (
                   <option key={idx} value={option.label}>
                     {option.label}
@@ -112,6 +118,13 @@ const FormPage: React.FC = () => {
                   <label>{option.label}</label>
                 </div>
               ))}
+            {field.type === "date" && (
+              <input
+                type="date"
+                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none"
+              />
+            )}
           </div>
         ))}
       </div>
@@ -120,6 +133,12 @@ const FormPage: React.FC = () => {
         className="mt-6 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200"
       >
         Submit
+      </button>
+      <button
+        onClick={() => navigate("/")}
+        className="mt-6 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition duration-200 ml-4"
+      >
+        Go to Home
       </button>
     </div>
   );

@@ -9,6 +9,7 @@ import NumberInputCard from "../ui/NumberInputCard";
 import RadioButtonCard from "../ui/RadioButtonCard";
 import { Field } from "../types"; // Import the Field type
 import axios from "axios";
+import DateInputCard from "../ui/DateInputCard";
 
 const ItemType = "FIELD"; // Define a constant for item type
 
@@ -97,6 +98,8 @@ const FieldCard: React.FC<{
           handleOptionChange={handleOptionChange}
           handleOptionToggle={handleOptionToggle}
         />
+      ) : field.type === "date" ? (
+        <DateInputCard field={field} updateField={updateField} removeField={removeField} />
       ) : null}
     </div>
   );
@@ -110,13 +113,14 @@ const FormBuilderPage: React.FC = () => {
     fields: [] as Field[],
   });
  const [loading, setLoading] = useState(true);
-  const [availableFields] = useState([
-    { id: "dropdown", type: "dropdown", label: "Dropdown", options: [] },
-    { id: "checkbox", type: "checkbox", label: "Checkbox", options: [{ label: "Option 1", checked: false }, { label: "Option 2", checked: false }] },
-    { id: "text", type: "text", label: "Text Input", value: "" },
-    { id: "number", type: "number", label: "Number Input", value: "" },
-    { id: "radio", type: "radio", label: "Radio Button", options: [{ label: "Option 1", checked: false }, { label: "Option 2", checked: false }] },
-  ]); // Available fields in the left panel
+ const [availableFields] = useState([
+  { id: "dropdown", type: "dropdown", label: "Dropdown", options: [] },
+  { id: "checkbox", type: "checkbox", label: "Checkbox", options: [{ label: "Option 1", checked: false }, { label: "Option 2", checked: false }] },
+  { id: "text", type: "text", label: "Text Input", value: "" },
+  { id: "number", type: "number", label: "Number Input", value: "" },
+  { id: "radio", type: "radio", label: "Radio Button", options: [{ label: "Option 1", checked: false }, { label: "Option 2", checked: false }] },
+  { id: "date", type: "date", label: "Date", value: "" }, // Add the date field here
+]);// Available fields in the left panel
   const navigate = useNavigate();
 
   // Fetch existing form if editing

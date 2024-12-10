@@ -50,12 +50,20 @@ app.put("/api/forms/:id", async (req, res) => {
         title,
         description,
         fields: {
-          deleteMany: {}, // Remove existing fields
-          create: fields.map((field) => ({
-            type: field.type,
-            label: field.label,
-            options: field.options,
-            value: field.value,
+          upsert: fields.map((field) => ({
+            where: { id: field.id || 0 }, // Use 0 to ensure a new field is created if id is not provided
+            update: {
+              type: field.type,
+              label: field.label,
+              options: field.options,
+              value: field.value,
+            },
+            create: {
+              type: field.type,
+              label: field.label,
+              options: field.options,
+              value: field.value,
+            },
           })),
         },
       },
@@ -126,6 +134,8 @@ app.get("/api/forms/share/:uuid", async (req, res) => {
         where: { uuid },
         include: { fields: true },
       });
+  
+      console.log("Fetched form:", form);
   
       if (!form) {
         return res.status(404).json({ error: "Form not found" });
@@ -210,8 +220,12 @@ app.get("/api/forms/:id/submissions", async (req, res) => {
       where: { formId: id },
     });
 
-    if (!submissions || submissions.length === 0) {
-      return res.status(404).json({ message: "No submissions found for this form" });
+    if (!submissions) {
+      return res.status(404).json({
+      formTitle: form.title,
+      formDescription: form.description,
+      submissions: [],
+      });
     }
 
     // Combine form questions with submission answers
