@@ -4,13 +4,12 @@ import App from './App';
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+const rootElement = document.getElementById('root') as HTMLElement;
+rootElement.style.margin = '30px';
+
+const root = ReactDOM.createRoot(rootElement);
 root.render(
   <DndProvider backend={HTML5Backend}>
-    <div style={{ margin: '50px' }}>
-      <App />
-    </div>
+    <App />
   </DndProvider>
 );

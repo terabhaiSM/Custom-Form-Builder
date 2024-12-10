@@ -110,25 +110,78 @@ app.post("/api/forms/:id/submissions", async (req, res) => {
   });
 
   // GET /api/forms/:id/submissions - Fetch all submissions for a form
+// app.get("/api/forms/:id/submissions", async (req, res) => {
+//   console.log("Fetching submissions");
+//   try {
+//     const { id } = req.params;
+//     console.log("Form ID:", id);
+
+//     // Fetch form submissions
+//     const submissions = await prisma.submission.findMany({
+//       where: { formId: id },
+//       include: { form: true }, // Optionally include form details
+//     });
+
+//     if (!submissions || submissions.length === 0) {
+//       return res.status(404).json({ message: "No submissions found for this form" });
+//     }
+
+//     res.status(200).json(submissions);
+//   } catch (error) {
+//     console.error("Error fetching submissions:", error);
+//     res.status(500).json({ error: "Failed to fetch submissions" });
+//   }
+// });
+
 app.get("/api/forms/:id/submissions", async (req, res) => {
-  console.log("Fetching submissions");
+  console.log("Fetching submissions with form details");
   try {
     const { id } = req.params;
     console.log("Form ID:", id);
 
-    // Fetch form submissions
+    // Fetch the form and its fields
+    const form = await prisma.form.findUnique({
+      where: { id },
+      include: { fields: true }, // Include form fields (questions)
+    });
+
+    if (!form) {
+      return res.status(404).json({ message: "Form not found" });
+    }
+
+    // Fetch the submissions for the form
     const submissions = await prisma.submission.findMany({
       where: { formId: id },
-      include: { form: true }, // Optionally include form details
     });
 
     if (!submissions || submissions.length === 0) {
-      return res.status(404).json({ error: "No submissions found for this form" });
+      return res.status(404).json({ message: "No submissions found for this form" });
     }
 
-    res.status(200).json(submissions);
+    // Combine form questions with submission answers
+    const detailedSubmissions = submissions.map((submission) => {
+      console.log(submission);
+      const responses = submission.responses // Parse the JSON response data
+      const pairedQuestionsAndAnswers = form.fields.map((field) => ({
+        question: field.label,
+        type: field.type,
+        options: field.options, // For dropdown, checkbox, or radio fields
+        answer: responses[field.id] || null, // Match the field ID to the answer in the submission
+      }));
+      return {
+        submissionId: submission.id,
+        submittedAt: submission.createdAt,
+        responses: pairedQuestionsAndAnswers,
+      };
+    });
+
+    res.status(200).json({
+      formTitle: form.title,
+      formDescription: form.description,
+      submissions: detailedSubmissions,
+    });
   } catch (error) {
-    console.error("Error fetching submissions:", error);
+    console.error("Error fetching submissions with form details:", error);
     res.status(500).json({ error: "Failed to fetch submissions" });
   }
 });
@@ -139,13 +192,15 @@ app.get("/api/forms", async (req, res) => {
     const forms = await prisma.form.findMany({
       select: {
         id: true,
+        uuid: true,
         title: true,
         description: true,
       },
     });
+    console.log("Forms:", forms);
 
     if (!forms || forms.length === 0) {
-      return res.status(404).json({ error: "No forms found" });
+      return res.status(404).json({ message: "No forms found" });
     }
 
     res.status(200).json(forms);

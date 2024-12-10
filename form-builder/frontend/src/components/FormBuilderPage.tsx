@@ -61,7 +61,7 @@ const FieldCard: React.FC<{
   return (
     <div
       ref={ref}
-      className={`p-4 rounded shadow bg-white ${
+      className={`p-4 rounded-lg shadow-lg bg-white transition-transform transform ${
         isDragging ? "opacity-50" : ""
       }`}
       style={{ marginBottom: "8px", cursor: "move" }}
@@ -102,7 +102,6 @@ const FieldCard: React.FC<{
   );
 };
 
-// Main FormBuilderPage
 const FormBuilderPage: React.FC = () => {
   const [form, setForm] = useState({
     title: "",
@@ -118,7 +117,6 @@ const FormBuilderPage: React.FC = () => {
   ]); // Available fields in the left panel
   const navigate = useNavigate();
 
-  // Handling adding new fields
   const addField = (type: "dropdown" | "checkbox" | "text" | "number" | "radio") => {
     const newField: Field = {
       id: Date.now().toString(),
@@ -139,7 +137,6 @@ const FormBuilderPage: React.FC = () => {
     }));
   };
 
-  // Moving fields
   const moveField = (dragIndex: number, hoverIndex: number) => {
     const reorderedFields = [...form.fields];
     const [movedField] = reorderedFields.splice(dragIndex, 1);
@@ -150,7 +147,6 @@ const FormBuilderPage: React.FC = () => {
     }));
   };
 
-  // Update field values
   const updateField = (id: string, updatedField: Partial<Field>) => {
     setForm((prevForm) => ({
       ...prevForm,
@@ -158,7 +154,6 @@ const FormBuilderPage: React.FC = () => {
     }));
   };
 
-  // Adding options for dropdown or checkbox fields
   const handleAddOption = (fieldId: string) => {
     const updatedFields = form.fields.map((field) => {
       if (field.id === fieldId && "options" in field) {
@@ -178,7 +173,6 @@ const FormBuilderPage: React.FC = () => {
     }));
   };
 
-  // Handling option change for dropdown and checkbox fields
   const handleOptionChange = (fieldId: string, index: number, value: string) => {
     const updatedFields = form.fields.map((field) => {
       if (field.id === fieldId && "options" in field) {
@@ -194,7 +188,6 @@ const FormBuilderPage: React.FC = () => {
     }));
   };
 
-  // Handling checkbox toggle for checkbox fields
   const handleOptionToggle = (fieldId: string, index: number) => {
     const updatedFields = form.fields.map((field) => {
       if (field.id === fieldId && "options" in field) {
@@ -210,7 +203,6 @@ const FormBuilderPage: React.FC = () => {
     }));
   };
 
-  // Removing a field
   const removeField = (id: string) => {
     setForm((prevForm) => ({
       ...prevForm,
@@ -249,13 +241,18 @@ const FormBuilderPage: React.FC = () => {
   };
 
   return (
-    <DndProvider backend={HTML5Backend}>    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-6xl mx-auto bg-white shadow rounded-lg p-6">
-        <div className="flex flex-col space-y-6">
+    <DndProvider backend={HTML5Backend}>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 p-8">
+        <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-6">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-800">Create a New Form</h1>
+            <p className="text-lg text-gray-600">Drag and drop fields to create your form.</p>
+          </div>
+
           {/* Form Title and Description */}
-          <div className="mb-4">
-            <div className="mb-2">
-              <label htmlFor="formTitle" className="text-lg font-semibold">
+          <div className="mb-6">
+            <div className="mb-4">
+              <label htmlFor="formTitle" className="text-xl font-semibold text-gray-700">
                 Form Title:
               </label>
               <input
@@ -263,15 +260,13 @@ const FormBuilderPage: React.FC = () => {
                 type="text"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none"
+                className="w-full p-3 border-2 border-gray-300 rounded-md focus:border-blue-500 focus:outline-none"
                 placeholder="Enter form title"
               />
             </div>
-            <div className="mb-2">
-              <label
-                htmlFor="formDescription"
-                className="text-lg font-semibold"
-              >
+
+            <div className="mb-6">
+              <label htmlFor="formDescription" className="text-xl font-semibold text-gray-700">
                 Form Description:
               </label>
               <input
@@ -281,21 +276,20 @@ const FormBuilderPage: React.FC = () => {
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
                 }
-                className="w-full p-2 border-b-2 border-gray-300 focus:border-blue-500 outline-none"
+                className="w-full p-3 border-2 border-gray-300 rounded-md focus:border-blue-500 focus:outline-none"
                 placeholder="Enter form description"
               />
             </div>
           </div>
 
-          {/* Left Panel for available field types */}
           <div className="flex space-x-6">
-            <div className="w-1/4 bg-gray-50 p-4 rounded shadow">
+            <div className="w-1/4 bg-gray-50 p-4 rounded-lg shadow">
               <h3 className="text-lg font-semibold mb-4">Available Fields</h3>
               <div className="space-y-2">
                 {availableFields.map((field) => (
                   <div
                     key={field.id}
-                    className="field-item p-3 cursor-pointer bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
+                    className="p-3 cursor-pointer bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
                     onClick={() =>
                       addField(
                         field.type as
@@ -313,30 +307,27 @@ const FormBuilderPage: React.FC = () => {
               </div>
             </div>
 
-              {/* Right Panel for the form fields */}
-              <div className="w-3/4 bg-gray-50 p-4 rounded shadow">
-                <h3>Form Fields</h3>
-                {form.fields.map((field, index) => (
-                  <FieldCard
-                    key={field.id}
-                    field={field}
-                    index={index}
-                    moveField={moveField}
-                    updateField={updateField}
-                    removeField={removeField}
-                    handleAddOption={handleAddOption}
-                    handleOptionChange={handleOptionChange}
-                    handleOptionToggle={handleOptionToggle}
-                  />
-                ))}
-              </div>
+            <div className="w-3/4 bg-gray-50 p-4 rounded-lg shadow">
+              <h3 className="text-xl font-semibold mb-4">Form Fields</h3>
+              {form.fields.map((field, index) => (
+                <FieldCard
+                  key={field.id}
+                  field={field}
+                  index={index}
+                  moveField={moveField}
+                  updateField={updateField}
+                  removeField={removeField}
+                  handleAddOption={handleAddOption}
+                  handleOptionChange={handleOptionChange}
+                  handleOptionToggle={handleOptionToggle}
+                />
+              ))}
             </div>
           </div>
 
-          {/* Create Form Button */}
           <button
             onClick={createForm}
-            className="w-full bg-blue-500 text-white py-2 rounded shadow hover:bg-blue-600 transition duration-200"
+            className="w-full bg-blue-500 text-white py-3 rounded-lg shadow hover:bg-blue-600 transition duration-200 mt-6"
           >
             Create Form
           </button>
