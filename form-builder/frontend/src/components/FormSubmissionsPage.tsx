@@ -55,6 +55,36 @@ const FormSubmissionsPage: React.FC = () => {
     fetchSubmissions();
   }, [id]);
 
+  const exportToCSV = () => {
+    if (!formData || formData.submissions.length === 0) {
+      alert("No submissions available to export.");
+      return;
+    }
+  
+    // Define CSV headers
+    const csvHeaders = ["Submission ID", "Submitted At", "Question", "Answer", "Type"];
+    
+    // Generate CSV rows
+    const csvRows = formData.submissions.flatMap((submission) =>
+      submission.responses.map((response) => {
+        const formattedDate = new Date(submission.submittedAt).toLocaleString();
+        return `"${submission.submissionId}","${formattedDate}","${response.question}","${response.answer}","${response.type}"`;
+      })
+    );
+  
+    // Combine headers and rows
+    const csvContent = [csvHeaders.join(","), ...csvRows].join("\n");
+  
+    // Create a downloadable CSV file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${formData.formTitle}_submissions.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) return <Loader />;
   if (error)
     return (
@@ -79,6 +109,15 @@ const FormSubmissionsPage: React.FC = () => {
           </h1>
           <p className="text-lg text-gray-600">{formData?.formDescription}</p>
         </header>
+
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={exportToCSV}
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            Export to CSV
+          </button>
+        </div>
 
         {/* Submissions Section */}
         {formData != null && formData?.submissions.length === 0 ? (
