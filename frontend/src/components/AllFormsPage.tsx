@@ -40,7 +40,7 @@ const AllFormsPage: React.FC = () => {
 
     // Function to copy the shareable link to clipboard
     const handleCopyLink = (uuid: string) => {
-        const shareableLink = `http://localhost:3000/share/${uuid}`;
+        const shareableLink = `${process.env.REACT_APP_BASE_URL}/share/${uuid}`;
         navigator.clipboard
             .writeText(shareableLink)
             .then(() => alert("Shareable link copied to clipboard!"))

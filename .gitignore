@@ -60,7 +60,6 @@ temp/
 # Frontend specific
 node_modules/
 bower_components/
-public/
 dist/
 build/
 .cache/
