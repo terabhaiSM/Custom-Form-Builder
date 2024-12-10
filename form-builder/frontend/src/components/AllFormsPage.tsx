@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { HiOutlineClipboardCopy } from "react-icons/hi"; // Import Clipboard Icon from React Icons
+import { HiOutlineClipboardCopy, HiPencilAlt, HiTrash } from "react-icons/hi"; // Import Trash Icon from React Icons
 
 const AllFormsPage: React.FC = () => {
     const [forms, setForms] = useState<any[]>([]); // State to hold all forms
@@ -14,7 +14,9 @@ const AllFormsPage: React.FC = () => {
         const fetchForms = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get("http://localhost:5001/api/forms", { validateStatus: (status) => status < 500 });
+                const response = await axios.get("http://localhost:5001/api/forms", {
+                    validateStatus: (status) => status < 500,
+                });
                 console.log(response.data);
                 if (response.status === 404) {
                     setForms([]);
@@ -38,9 +40,24 @@ const AllFormsPage: React.FC = () => {
     // Function to copy the shareable link to clipboard
     const handleCopyLink = (uuid: string) => {
         const shareableLink = `http://localhost:3000/share/${uuid}`;
-        navigator.clipboard.writeText(shareableLink)
-            .then(() => alert('Shareable link copied to clipboard!'))
-            .catch((err) => alert('Failed to copy link!'));
+        navigator.clipboard
+            .writeText(shareableLink)
+            .then(() => alert("Shareable link copied to clipboard!"))
+            .catch((err) => alert("Failed to copy link!"));
+    };
+
+    // Function to delete a form
+    const handleDeleteForm = async (id: string) => {
+        if (window.confirm("Are you sure you want to delete this form?")) {
+            try {
+                await axios.delete(`http://localhost:5001/api/forms/${id}`);
+                setForms(forms.filter((form) => form.id !== id));
+                alert("Form deleted successfully!");
+            } catch (err) {
+                console.error("Error deleting form:", err);
+                alert("Failed to delete form. Please try again.");
+            }
+        }
     };
 
     return (
@@ -66,13 +83,29 @@ const AllFormsPage: React.FC = () => {
                         >
                             <div className="flex justify-between items-center mb-4">
                                 <div className="flex items-center space-x-2">
-                                    <h2 className="text-xl font-semibold text-gray-800">{form.title}</h2>
+                                    <h2 className="text-xl font-semibold text-gray-800">
+                                        {form.title}
+                                    </h2>
                                     <button
                                         onClick={() => handleCopyLink(form.uuid)}
                                         className="text-gray-500 hover:text-gray-700 p-2 rounded-full"
                                         title="Copy shareable link"
                                     >
                                         <HiOutlineClipboardCopy size={20} />
+                                    </button>
+                                    <button
+                                        onClick={() => navigate(`/forms/edit/${form.id}`)} // Navigate to the edit page
+                                        className="text-gray-500 hover:text-gray-700 p-2 rounded-full"
+                                        title="Edit form"
+                                    >
+                                        <HiPencilAlt size={20} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteForm(form.id)} // Delete form
+                                        className="text-gray-500 hover:text-gray-700 p-2 rounded-full"
+                                        title="Delete form"
+                                    >
+                                        <HiTrash size={20} />
                                     </button>
                                 </div>
                             </div>

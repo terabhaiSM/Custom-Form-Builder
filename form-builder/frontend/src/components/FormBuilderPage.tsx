@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import DropdownCard from "../ui/DropdownCard";
@@ -8,7 +8,7 @@ import TextInputCard from "../ui/TextInputCard";
 import NumberInputCard from "../ui/NumberInputCard";
 import RadioButtonCard from "../ui/RadioButtonCard";
 import { Field } from "../types"; // Import the Field type
-import axios from "axios"; // Import axios
+import axios from "axios";
 
 const ItemType = "FIELD"; // Define a constant for item type
 
@@ -103,11 +103,13 @@ const FieldCard: React.FC<{
 };
 
 const FormBuilderPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>(); // Retrieve ID for editing
   const [form, setForm] = useState({
     title: "",
     description: "",
     fields: [] as Field[],
   });
+ const [loading, setLoading] = useState(true);
   const [availableFields] = useState([
     { id: "dropdown", type: "dropdown", label: "Dropdown", options: [] },
     { id: "checkbox", type: "checkbox", label: "Checkbox", options: [{ label: "Option 1", checked: false }, { label: "Option 2", checked: false }] },
@@ -117,6 +119,57 @@ const FormBuilderPage: React.FC = () => {
   ]); // Available fields in the left panel
   const navigate = useNavigate();
 
+  // Fetch existing form if editing
+  useEffect(() => {
+    const fetchForm = async () => {
+      if (!id) {
+        setLoading(false);
+        return; // No ID, it's a new form creation
+      }
+
+      try {
+        const response = await axios.get(`http://localhost:5001/api/forms/${id}`);
+        const formData = response.data;
+        setForm({
+          title: formData.title,
+          description: formData.description,
+          fields: formData.fields.map((field: any) => ({
+            ...field,
+            options: field.options || [], // Ensure options exist
+          })),
+        });
+      } catch (error) {
+        console.error("Error fetching form:", error);
+        alert("Failed to fetch form for editing.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchForm();
+  }, [id]);
+
+  // Handle form saving (Create or Update)
+  const saveForm = async () => {
+    try {
+      if (id) {
+        // Update existing form
+        await axios.put(`http://localhost:5001/api/forms/${id}`, form);
+        alert("Form updated successfully!");
+        navigate(`/form/${id}`);
+      } else {
+        // Create a new form
+        const response = await axios.post("http://localhost:5001/api/forms", form);
+        const newFormId = response.data.id;
+        alert(`Form created successfully!`);
+        navigate(`/form/${newFormId}`);
+      }
+    } catch (error) {
+      console.error("Error saving form:", error);
+      alert("Failed to save form. Please try again.");
+    }
+  };
+
   const addField = (type: "dropdown" | "checkbox" | "text" | "number" | "radio") => {
     const newField: Field = {
       id: Date.now().toString(),
@@ -124,9 +177,7 @@ const FormBuilderPage: React.FC = () => {
       label: `${type.charAt(0).toUpperCase() + type.slice(1)} Field`,
       options: type === "dropdown" 
         ? [{ label: "Option 1", checked: false }]
-        : type === "checkbox"
-        ? [{ label: "Option 1", checked: false }, { label: "Option 2", checked: false }]
-        : type === "radio"
+        : type === "checkbox" || type === "radio"
         ? [{ label: "Option 1", checked: false }, { label: "Option 2", checked: false }]
         : undefined,
       value: type === "text" || type === "number" ? "" : undefined,
@@ -245,44 +296,41 @@ const FormBuilderPage: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 p-8">
         <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-6">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800">Create a New Form</h1>
-            <p className="text-lg text-gray-600">Drag and drop fields to create your form.</p>
+            <h1 className="text-3xl font-bold text-gray-800">
+              {id ? "Edit Form" : "Create a New Form"}
+            </h1>
+            <p className="text-lg text-gray-600">Drag and drop fields to customize your form.</p>
           </div>
 
           {/* Form Title and Description */}
           <div className="mb-6">
-            <div className="mb-4">
-              <label htmlFor="formTitle" className="text-xl font-semibold text-gray-700">
-                Form Title:
-              </label>
-              <input
-                id="formTitle"
-                type="text"
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full p-3 border-2 border-gray-300 rounded-md focus:border-blue-500 focus:outline-none"
-                placeholder="Enter form title"
-              />
-            </div>
-
-            <div className="mb-6">
-              <label htmlFor="formDescription" className="text-xl font-semibold text-gray-700">
-                Form Description:
-              </label>
-              <input
-                id="formDescription"
-                type="text"
-                value={form.description}
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
-                className="w-full p-3 border-2 border-gray-300 rounded-md focus:border-blue-500 focus:outline-none"
-                placeholder="Enter form description"
-              />
-            </div>
+            <label htmlFor="formTitle" className="text-xl font-semibold text-gray-700">
+              Form Title:
+            </label>
+            <input
+              id="formTitle"
+              type="text"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="w-full p-3 border-2 border-gray-300 rounded-md focus:border-blue-500 focus:outline-none mb-4"
+              placeholder="Enter form title"
+            />
+            <label htmlFor="formDescription" className="text-xl font-semibold text-gray-700">
+              Form Description:
+            </label>
+            <input
+              id="formDescription"
+              type="text"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="w-full p-3 border-2 border-gray-300 rounded-md focus:border-blue-500 focus:outline-none"
+              placeholder="Enter form description"
+            />
           </div>
 
+          {/* Drag-and-Drop Area */}
           <div className="flex space-x-6">
+            {/* Left Panel */}
             <div className="w-1/4 bg-gray-50 p-4 rounded-lg shadow">
               <h3 className="text-lg font-semibold mb-4">Available Fields</h3>
               <div className="space-y-2">
@@ -307,6 +355,7 @@ const FormBuilderPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Form Fields */}
             <div className="w-3/4 bg-gray-50 p-4 rounded-lg shadow">
               <h3 className="text-xl font-semibold mb-4">Form Fields</h3>
               {form.fields.map((field, index) => (
@@ -325,11 +374,12 @@ const FormBuilderPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Save Form Button */}
           <button
-            onClick={createForm}
-            className="w-full bg-blue-500 text-white py-3 rounded-lg shadow hover:bg-blue-600 transition duration-200 mt-6"
+            onClick={saveForm}
+            className="w-full bg-blue-500 text-white py-3 rounded-lg shadow hover:bg-blue-600 transition mt-6"
           >
-            Create Form
+            {id ? "Save Changes" : "Create Form"}
           </button>
         </div>
       </div>

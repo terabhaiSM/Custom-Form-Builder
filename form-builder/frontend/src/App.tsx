@@ -13,6 +13,7 @@ const App: React.FC = () => {
         {/* Route for the form builder page */}
         <Route path="/" element={<AllFormsPage />} />
         <Route path="/forms" element={<FormBuilderPage />} />
+        <Route path="/forms/edit/:id" element={<FormBuilderPage />} />
 
         {/* Correct dynamic route for displaying form */}
         <Route path="/form/:id" element={<FormPage />} />

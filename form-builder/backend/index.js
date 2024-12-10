@@ -38,6 +38,62 @@ app.post("/api/forms", async (req, res) => {
   }
 });
 
+app.put("/api/forms/:id", async (req, res) => {
+  const { id } = req.params;
+  const { title, description, fields } = req.body;
+
+  try {
+    // Update the form
+    const updatedForm = await prisma.form.update({
+      where: { id },
+      data: {
+        title,
+        description,
+        fields: {
+          deleteMany: {}, // Remove existing fields
+          create: fields.map((field) => ({
+            type: field.type,
+            label: field.label,
+            options: field.options,
+            value: field.value,
+          })),
+        },
+      },
+    });
+
+    res.status(200).json(updatedForm);
+  } catch (error) {
+    console.error("Error updating form:", error);
+    res.status(500).json({ error: "Failed to update form." });
+  }
+});
+// DELETE /api/forms/:id - Delete a form by ID
+app.delete("/api/forms/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Delete related fields
+    await prisma.field.deleteMany({
+      where: { formId: id },
+    });
+
+    // Delete related submissions
+    await prisma.submission.deleteMany({
+      where: { formId: id },
+    });
+
+    // Delete the form
+    await prisma.form.delete({
+      where: { id },
+    });
+
+    res.status(200).json({ message: "Form deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting form:", error);
+    res.status(500).json({ error: "Failed to delete form" });
+  }
+});
+
 // GET /api/forms/:id - Fetch a form by ID
 app.get("/api/forms/:id", async (req, res) => {
   try {
