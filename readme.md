@@ -1,5 +1,20 @@
-Full Stack Form Builder Application
+**Full Stack Form Builder Application**
 This project provides a complete solution for creating, managing, and submitting dynamic forms. It includes:
+DEMO:-
+**HOME PAGE**
+![alt text](image.png)
+
+**CREATE A NEW FORM**
+![alt text](image-1.png)
+
+**FILL A FORM**
+![alt text](image-2.png)
+
+**COPY LINK**
+![alt text](image-3.png)
+
+**VIEW SUBMISSION FOR FORM**
+![alt text](image-4.png)
 
 Backend: A RESTful API built with Node.js, Express, Prisma, and PostgreSQL.
 Frontend: A React-based dynamic form builder and submission viewer.
