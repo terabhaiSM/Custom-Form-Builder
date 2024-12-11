@@ -8,23 +8,23 @@ This project provides a complete solution for creating, managing, and submitting
 
 ### Home Page
 
-![alt text]\(image.png)
+![alt text](./images/image.png)
 
 ### **CREATE A NEW FORM**
 
-![alt text]\(image-2.png)
+![alt text](./images/image-2.png)
 
 ### Fill a Form
 
-![alt text]\(image-3.png)
+![alt text](./images/image-3.png)
 
 ### Copy Link
 
-![alt text]\(image-4.png)
+![alt text](./images/image-4.png)
 
 ### View Submission for Form
 
-![alt text]\(image-5.png)
+![alt text](./images/image-5.png)
 
 ---
 
