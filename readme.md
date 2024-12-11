@@ -12,19 +12,19 @@ This project provides a complete solution for creating, managing, and submitting
 
 ### **CREATE A NEW FORM**
 
-![alt text](./images/image-2.png)
+![alt text](./images/image-1.png)
 
 ### Fill a Form
 
-![alt text](./images/image-3.png)
+![alt text](./images/image-2.png)
 
 ### Copy Link
 
-![alt text](./images/image-4.png)
+![alt text](./images/image-3.png)
 
 ### View Submission for Form
 
-![alt text](./images/image-5.png)
+![alt text](./images/image-4.png)
 
 ---
 
