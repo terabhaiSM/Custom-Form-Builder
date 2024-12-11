@@ -1,284 +1,44 @@
 const express = require("express");
-const { PrismaClient } = require("@prisma/client");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 
 const app = express();
-const prisma = new PrismaClient();
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
-// POST /api/forms - Create a new form
-app.post("/api/forms", async (req, res) => {
-  try {
-    const { title, description, fields } = req.body;
-
-    // Create the form
-    const form = await prisma.form.create({
-      data: {
-        title,
-        description,
-        fields: {
-          create: fields.map((field) => ({
-            type: field.type,
-            label: field.label,
-            value: field.value || null,
-            options: field.options || null,
-          })),
-        },
+// Swagger Options
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Form API",
+      version: "1.0.0",
+      description: "API documentation for managing forms and submissions.",
+    },
+    servers: [
+      {
+        url: "http://localhost:5001",
+        description: "Local server",
       },
-    });
+    ],
+  },
+  apis: ["./controllers/*.js"], // Path to the API docs
+};
 
-    res.status(201).json({ id: form.id, uuid: form.uuid });
-  } catch (error) {
-    console.error("Error creating form:", error);
-    res.status(500).json({ error: "Failed to create form" });
-  }
-});
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-app.put("/api/forms/:id", async (req, res) => {
-  const { id } = req.params;
-  const { title, description, fields } = req.body;
+// Routes
+const formRoutes = require("./routes/formRoutes");
+const submissionRoutes = require("./routes/submissionRoutes");
 
-  try {
-    // Update the form
-    const updatedForm = await prisma.form.update({
-      where: { id },
-      data: {
-        title,
-        description,
-        fields: {
-          upsert: fields.map((field) => ({
-            where: { id: field.id || 0 }, // Use 0 to ensure a new field is created if id is not provided
-            update: {
-              type: field.type,
-              label: field.label,
-              options: field.options,
-              value: field.value,
-            },
-            create: {
-              type: field.type,
-              label: field.label,
-              options: field.options,
-              value: field.value,
-            },
-          })),
-        },
-      },
-    });
+app.use("/api/forms", formRoutes);
+app.use("/api/forms", submissionRoutes);
 
-    res.status(200).json(updatedForm);
-  } catch (error) {
-    console.error("Error updating form:", error);
-    res.status(500).json({ error: "Failed to update form." });
-  }
-});
-// DELETE /api/forms/:id - Delete a form by ID
-app.delete("/api/forms/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Delete related fields
-    await prisma.field.deleteMany({
-      where: { formId: id },
-    });
-
-    // Delete related submissions
-    await prisma.submission.deleteMany({
-      where: { formId: id },
-    });
-
-    // Delete the form
-    await prisma.form.delete({
-      where: { id },
-    });
-
-    res.status(200).json({ message: "Form deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting form:", error);
-    res.status(500).json({ error: "Failed to delete form" });
-  }
-});
-
-// GET /api/forms/:id - Fetch a form by ID
-app.get("/api/forms/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Fetch the form by ID
-    const form = await prisma.form.findUnique({
-      where: { id },
-      include: { fields: true },
-    });
-
-    if (!form) {
-      return res.status(404).json({ error: "Form not found" });
-    }
-
-    res.status(200).json(form);
-  } catch (error) {
-    console.error("Error fetching form:", error);
-    res.status(500).json({ error: "Failed to fetch form" });
-  }
-});
-
-// GET /api/forms/share/:uuid - Fetch a form by its UUID
-app.get("/api/forms/share/:uuid", async (req, res) => {
-    try {
-      const { uuid } = req.params;
-  
-      // Fetch the form by UUID
-      const form = await prisma.form.findUnique({
-        where: { uuid },
-        include: { fields: true },
-      });
-  
-      console.log("Fetched form:", form);
-  
-      if (!form) {
-        return res.status(404).json({ error: "Form not found" });
-      }
-  
-      res.status(200).json(form);
-    } catch (error) {
-      console.error("Error fetching form by UUID:", error);
-      res.status(500).json({ error: "Failed to fetch form" });
-    }
-  });
-
-  // POST /api/forms/:id/submissions - Submit form responses
-app.post("/api/forms/:id/submissions", async (req, res) => {
-    try {
-      const { id } = req.params; // Form ID
-      const { responses } = req.body; // User responses
-  
-      // Check if form exists
-      const form = await prisma.form.findUnique({ where: { id } });
-      if (!form) {
-        return res.status(404).json({ error: "Form not found" });
-      }
-  
-      // Save the submission
-      const submission = await prisma.submission.create({
-        data: {
-          formId: id,
-          responses,
-        },
-      });
-  
-      res.status(201).json({ message: "Submission successful", submission });
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      res.status(500).json({ error: "Failed to submit form" });
-    }
-  });
-
-  // GET /api/forms/:id/submissions - Fetch all submissions for a form
-// app.get("/api/forms/:id/submissions", async (req, res) => {
-//   console.log("Fetching submissions");
-//   try {
-//     const { id } = req.params;
-//     console.log("Form ID:", id);
-
-//     // Fetch form submissions
-//     const submissions = await prisma.submission.findMany({
-//       where: { formId: id },
-//       include: { form: true }, // Optionally include form details
-//     });
-
-//     if (!submissions || submissions.length === 0) {
-//       return res.status(404).json({ message: "No submissions found for this form" });
-//     }
-
-//     res.status(200).json(submissions);
-//   } catch (error) {
-//     console.error("Error fetching submissions:", error);
-//     res.status(500).json({ error: "Failed to fetch submissions" });
-//   }
-// });
-
-app.get("/api/forms/:id/submissions", async (req, res) => {
-  console.log("Fetching submissions with form details");
-  try {
-    const { id } = req.params;
-    console.log("Form ID:", id);
-
-    // Fetch the form and its fields
-    const form = await prisma.form.findUnique({
-      where: { id },
-      include: { fields: true }, // Include form fields (questions)
-    });
-
-    if (!form) {
-      return res.status(404).json({ message: "Form not found" });
-    }
-
-    // Fetch the submissions for the form
-    const submissions = await prisma.submission.findMany({
-      where: { formId: id },
-    });
-
-    if (!submissions) {
-      return res.status(404).json({
-      formTitle: form.title,
-      formDescription: form.description,
-      submissions: [],
-      });
-    }
-
-    // Combine form questions with submission answers
-    const detailedSubmissions = submissions.map((submission) => {
-      console.log(submission);
-      const responses = submission.responses // Parse the JSON response data
-      const pairedQuestionsAndAnswers = form.fields.map((field) => ({
-        question: field.label,
-        type: field.type,
-        options: field.options, // For dropdown, checkbox, or radio fields
-        answer: responses[field.id] || null, // Match the field ID to the answer in the submission
-      }));
-      return {
-        submissionId: submission.id,
-        submittedAt: submission.createdAt,
-        responses: pairedQuestionsAndAnswers,
-      };
-    });
-
-    res.status(200).json({
-      formTitle: form.title,
-      formDescription: form.description,
-      submissions: detailedSubmissions,
-    });
-  } catch (error) {
-    console.error("Error fetching submissions with form details:", error);
-    res.status(500).json({ error: "Failed to fetch submissions" });
-  }
-});
-
-// GET /api/forms - Fetch all forms
-app.get("/api/forms", async (req, res) => {
-  try {
-    const forms = await prisma.form.findMany({
-      select: {
-        id: true,
-        uuid: true,
-        title: true,
-        description: true,
-      },
-    });
-    console.log("Forms:", forms);
-
-    if (!forms || forms.length === 0) {
-      return res.status(404).json({ message: "No forms found" });
-    }
-
-    res.status(200).json(forms);
-  } catch (error) {
-    console.error("Error fetching forms:", error);
-    res.status(500).json({ error: "Failed to fetch forms" });
-  }
-});
 // Start the server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {

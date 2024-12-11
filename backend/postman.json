@@ -1,0 +1,120 @@
+{
+    "info": {
+      "name": "Form API Collection",
+      "_postman_id": "12345-67890-abcde-fghij",
+      "description": "Postman collection for managing forms, fields, and submissions.",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Create Form",
+        "request": {
+          "method": "POST",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"Test Form\",\n  \"description\": \"This is a test form\",\n  \"fields\": [\n    {\n      \"type\": \"text\",\n      \"label\": \"What is your name?\",\n      \"value\": \"\"\n    }\n  ]\n}"
+          },
+          "url": {
+            "raw": "http://localhost:5001/api/forms",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "5001",
+            "path": ["api", "forms"]
+          }
+        }
+      },
+      {
+        "name": "Get All Forms",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "http://localhost:5001/api/forms",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "5001",
+            "path": ["api", "forms"]
+          }
+        }
+      },
+      {
+        "name": "Get Form by ID",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "http://localhost:5001/api/forms/:id",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "5001",
+            "path": ["api", "forms", ":id"]
+          }
+        }
+      },
+      {
+        "name": "Update Form",
+        "request": {
+          "method": "PUT",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"Updated Form Title\",\n  \"description\": \"Updated form description\",\n  \"fields\": []\n}"
+          },
+          "url": {
+            "raw": "http://localhost:5001/api/forms/:id",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "5001",
+            "path": ["api", "forms", ":id"]
+          }
+        }
+      },
+      {
+        "name": "Delete Form",
+        "request": {
+          "method": "DELETE",
+          "header": [],
+          "url": {
+            "raw": "http://localhost:5001/api/forms/:id",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "5001",
+            "path": ["api", "forms", ":id"]
+          }
+        }
+      },
+      {
+        "name": "Submit Form Responses",
+        "request": {
+          "method": "POST",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"responses\": {\n    \"fieldId1\": \"Answer1\",\n    \"fieldId2\": \"Answer2\"\n  }\n}"
+          },
+          "url": {
+            "raw": "http://localhost:5001/api/forms/:id/submissions",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "5001",
+            "path": ["api", "forms", ":id", "submissions"]
+          }
+        }
+      },
+      {
+        "name": "Get Form Submissions",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "http://localhost:5001/api/forms/:id/submissions",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "5001",
+            "path": ["api", "forms", ":id", "submissions"]
+          }
+        }
+      }
+    ]
+  }
