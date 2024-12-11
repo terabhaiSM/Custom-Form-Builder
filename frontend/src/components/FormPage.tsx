@@ -41,7 +41,7 @@ const FormPage: React.FC = () => {
         { responses }
       );
       alert("Form submitted successfully!");
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("Failed to submit form. Please try again.");
@@ -135,7 +135,7 @@ const FormPage: React.FC = () => {
         Submit
       </button>
       <button
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/home")}
         className="mt-6 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition duration-200 ml-4"
       >
         Go to Home

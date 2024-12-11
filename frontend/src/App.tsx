@@ -11,7 +11,7 @@ const App: React.FC = () => {
     <Router>
       <Routes>
         {/* Route for the form builder page */}
-        <Route path="/" element={<AllFormsPage />} />
+        <Route path="/home" element={<AllFormsPage />} />
         <Route path="/forms" element={<FormBuilderPage />} />
         <Route path="/forms/edit/:id" element={<FormBuilderPage />} />
 
