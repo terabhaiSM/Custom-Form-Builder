@@ -1,194 +1,280 @@
-**Full Stack Form Builder Application**
-This project provides a complete solution for creating, managing, and submitting dynamic forms. It includes:
-DEMO:-
-**HOME PAGE**
-![alt text](image.png)
+# Full Stack Form Builder Application
 
-**CREATE A NEW FORM**
-![alt text](image-1.png)
+This project provides a complete solution for creating, managing, and submitting dynamic forms.
 
-**FILL A FORM**
-![alt text](image-2.png)
+---
 
-**COPY LINK**
-![alt text](image-3.png)
+## Demo
 
-**VIEW SUBMISSION FOR FORM**
-![alt text](image-4.png)
+### Home Page
 
-Backend: A RESTful API built with Node.js, Express, Prisma, and PostgreSQL.
-Frontend: A React-based dynamic form builder and submission viewer.
-Features
-Backend Features:
-API for creating, managing, and submitting forms.
-JWT-based authentication for secure operations.
-Supports exporting form submissions as CSV.
-Frontend Features:
-Drag-and-drop form builder.
-Real-time form customization.
-Responsive design for managing and submitting forms.
-CSV export from the submission viewer.
-Requirements
-General:
-Node.js: Version 16 or above.
-PostgreSQL: A running PostgreSQL instance.
-React: React 18 or above for the frontend.
-Optional:
-Docker: For containerized deployment.
-Local Setup
-Backend Setup
-Without Docker:
-Clone the repository:
+![alt text]\(image.png)
 
+### **CREATE A NEW FORM**
 
+![alt text]\(image-2.png)
 
-git clone <repository-url>
-cd <project-folder>/backend
-Install dependencies:
+### Fill a Form
 
+![alt text]\(image-3.png)
 
+### Copy Link
 
-npm install
-Create a .env file in the backend directory:
+![alt text]\(image-4.png)
 
-env
+### View Submission for Form
 
-DATABASE_URL=postgresql://<username>:<password>@<host>:<port>/<database>?schema=public
-JWT_SECRET=your_secret_key
-Run Prisma commands:
+![alt text]\(image-5.png)
 
+---
 
+## Features
 
-npx prisma generate
-npx prisma migrate dev --name init
-Start the server:
+### Backend Features:
 
+- RESTful API built with Node.js, Express, Prisma, and PostgreSQL.
+- JWT-based authentication for secure operations.
+- Export form submissions as CSV.
 
+### Frontend Features:
 
-npm start
-Access the API:
+- Drag-and-drop form builder.
+- Real-time form customization.
+- Responsive design for managing and submitting forms.
+- CSV export from the submission viewer.
 
-arduino
+---
 
-http://localhost:5001
-With Docker:
-Navigate to the backend folder:
+## Requirements
 
+### General:
 
+- **Node.js**: Version 16 or above.
+- **PostgreSQL**: A running PostgreSQL instance.
+- **React**: React 18 or above for the frontend.
 
-cd <project-folder>/backend
-Update environment variables in docker-compose.yml if necessary.
+### Optional:
 
-Start the containers:
+- **Docker**: For containerized deployment.
 
+---
 
+## Local Setup
 
-docker-compose up --build
-Access the API:
+### Backend Setup
 
-arduino
+#### Without Docker:
 
-http://localhost:5001
-Frontend Setup
-Navigate to the frontend folder:
+1. Clone the repository:
 
+   ```bash
+   git clone <repository-url>
+   cd <project-folder>/backend
+   ```
 
+2. Install dependencies:
 
-cd <project-folder>/frontend
-Install dependencies:
+   ```bash
+   npm install
+   ```
 
+3. Create a `.env` file in the backend directory:
 
+   ```env
+   DATABASE_URL=postgresql://<username>:<password>@<host>:<port>/<database>?schema=public
+   JWT_SECRET=your_secret_key
+   ```
 
-npm install
-Create a .env file in the frontend directory:
+4. Run Prisma commands:
 
-env
+   ```bash
+   npx prisma generate
+   npx prisma migrate dev --name init
+   ```
 
-REACT_APP_API_URL=http://localhost:5001
-Start the development server:
+5. Start the server:
 
+   ```bash
+   npm start
+   ```
 
+6. Access the API at:
 
-npm start
-Access the application:
+   ```
+   http://localhost:5001
+   ```
 
-arduino
+#### With Docker:
 
-http://localhost:3000
-Deployment Instructions
-Backend Deployment (Render):
-Create a new service on Render:
+1. Navigate to the backend folder:
 
-Choose Node.js.
-Set up environment variables (DATABASE_URL and JWT_SECRET) in the Render dashboard.
-Add the build and start commands in package.json:
+   ```bash
+   cd <project-folder>/backend
+   ```
 
-json
+2. Update environment variables in `docker-compose.yml` if necessary.
 
-"scripts": {
-  "build": "npx prisma generate && npx prisma migrate deploy",
-  "start": "node index.js"
-}
-Deploy the backend using Render.
+3. Start the containers:
 
-Frontend Deployment (Netlify):
-Create a new site on Netlify:
+   ```bash
+   docker-compose up --build
+   ```
 
-Link the repository.
-Set the build command to:
+4. Access the API at:
 
+   ```
+   http://localhost:5001
+   ```
 
-npm run build
-Set the publish directory to:
+### Frontend Setup
 
-build
-Add environment variables:
+1. Navigate to the frontend folder:
 
-REACT_APP_API_URL pointing to the deployed backend URL.
-Deploy the frontend.
+   ```bash
+   cd <project-folder>/frontend
+   ```
 
-API Documentation
-Swagger UI
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file in the frontend directory:
+
+   ```env
+   REACT_APP_API_URL=http://localhost:5001
+   ```
+
+4. Start the development server:
+
+   ```bash
+   npm start
+   ```
+
+5. Access the application at:
+
+   ```
+   http://localhost:3000
+   ```
+
+---
+
+## Deployment Instructions
+
+### Backend Deployment (Render):
+
+1. Create a new service on Render:
+
+   - Choose **Node.js**.
+   - Set up environment variables (`DATABASE_URL` and `JWT_SECRET`) in the Render dashboard.
+
+2. Add the build and start commands in `package.json`:
+
+   ```json
+   "scripts": {
+     "build": "npx prisma generate && npx prisma migrate deploy",
+     "start": "node index.js"
+   }
+   ```
+
+3. Deploy the backend using Render.
+
+### Frontend Deployment (Netlify):
+
+1. Create a new site on Netlify:
+
+   - Link the repository.
+
+2. Set the build command to:
+
+   ```bash
+   npm run build
+   ```
+
+3. Set the publish directory to:
+
+   ```bash
+   build
+   ```
+
+4. Add environment variables:
+
+   ```env
+   REACT_APP_API_URL=<deployed-backend-url>
+   ```
+
+5. Deploy the frontend.
+
+---
+
+## API Documentation
+
+### Swagger UI
+
 If integrated, access it at:
 
-
-
+```
 http://localhost:5001/api-docs
-Postman Documentation
-Import the provided Postman collection (postman_collection.json).
-Set the BASE_URL to the deployed backend URL or http://localhost:5001 for local use.
-Design Overview
-Design Decisions
-Backend:
+```
 
-Express.js: Lightweight and flexible for RESTful APIs.
-Prisma: Simplified ORM for managing relational data.
-PostgreSQL: Relational database to handle complex relationships.
-JWT Authentication: Secure API endpoints.
-Frontend:
+### Postman Documentation
 
-React: Component-based architecture for dynamic user interfaces.
-Tailwind CSS: For responsive and modern styling.
-React DnD: For drag-and-drop functionality in the form builder.
-Database Schema
-Form Table
+1. Import the provided Postman collection (`postman_collection.json`).
+2. Set the `BASE_URL` to the deployed backend URL or `http://localhost:5001` for local use.
 
-id, title, description, uuid, createdAt, updatedAt.
-Field Table
+---
 
-id, formId (FK), type, label, options.
-Submission Table
+## Design Overview
 
-id, formId (FK), responses (JSON), submittedAt.
-Authentication Flow
-JWT Token Issuance: Secure user login.
-Token Validation: Middleware ensures only authenticated requests.
-Exporting Submissions as CSV
-Submissions can be exported in CSV format:
+### Design Decisions
 
-Frontend: The submission viewer includes an "Export CSV" button.
-Backend: Use the /api/forms/:id/submissions/export endpoint.
-Contributing
-Fork the repository.
-Create a branch for your feature.
-Submit a pull request.
+#### Backend:
+
+- **Express.js**: Lightweight and flexible for RESTful APIs.
+- **Prisma**: Simplified ORM for managing relational data.
+- **PostgreSQL**: Relational database to handle complex relationships.
+- **JWT Authentication**: Secure API endpoints.
+
+#### Frontend:
+
+- **React**: Component-based architecture for dynamic user interfaces.
+- **Tailwind CSS**: For responsive and modern styling.
+- **React DnD**: For drag-and-drop functionality in the form builder.
+
+### Database Schema
+
+#### Form Table:
+
+- `id`, `title`, `description`, `uuid`, `createdAt`, `updatedAt`
+
+#### Field Table:
+
+- `id`, `formId` (FK), `type`, `label`, `options`
+
+#### Submission Table:
+
+- `id`, `formId` (FK), `responses` (JSON), `submittedAt`
+
+---
+
+## Authentication Flow
+
+1. **JWT Token Issuance**: Secure user login.
+2. **Token Validation**: Middleware ensures only authenticated requests.
+
+---
+
+## Exporting Submissions as CSV
+
+- **Frontend**: The submission viewer includes an "Export CSV" button.
+- **Backend**: Use the `/api/forms/:id/submissions/export` endpoint.
+
+---
+
+## Contributing
+
+1. Fork the repository.
+2. Create a branch for your feature.
+3. Submit a pull request.
+
